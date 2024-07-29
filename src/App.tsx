@@ -146,6 +146,106 @@ const drawContact = (
   drawText(chart, axisX, axisY, text, center);
 };
 
+const drawRightContact = (
+  top: number,
+  text: string,
+  polygonSeries: PolygonSeries,
+  chart: ChartXY,
+  axisX: Axis,
+  axisY: Axis,
+  ellipseSeries: EllipseSeries
+) => {
+  // Constants for left and right positions
+  const left = 5.8;
+  const right = 7.1;
+  const midpoint = (left + right) / 2;
+
+  const upperCircle = ellipseSeries
+    .add({ x: midpoint, y: top, radiusX: 0.65, radiusY: 0.2 })
+    // Optional, changing default style
+    .setFillStyle(solidFillBackgroundCircle)
+    .setStrokeStyle(
+      new SolidLine({ thickness: 1, fillStyle: solidFillBackgroundCircle })
+    );
+
+  // Calculate bottom from top by adding 1.5
+  const bottom = top - 1.5;
+
+  // Calculate center coordinates
+  const centerX = (left + right) / 2;
+  const centerY = (top + bottom) / 2;
+  const center = { x: centerX, y: centerY };
+
+  // Draw polygon representing contact
+  polygonSeries
+    .add([
+      { x: left, y: top },
+      { x: right, y: top },
+      { x: right, y: bottom },
+      { x: left, y: bottom },
+      { x: left, y: top },
+    ])
+    .setFillStyle(solidFillContact)
+    .setStrokeStyle(
+      new SolidLine({
+        thickness: 1,
+        fillStyle: solidFillContact,
+      })
+    );
+
+  drawText(chart, axisX, axisY, text, center);
+};
+
+const drawLeftContact = (
+  top: number,
+  text: string,
+  polygonSeries: PolygonSeries,
+  chart: ChartXY,
+  axisX: Axis,
+  axisY: Axis,
+  ellipseSeries: EllipseSeries
+) => {
+  // Constants for left and right positions
+  const left = 2.9;
+  const right = 4.2;
+  const midpoint = (left + right) / 2;
+
+  const upperCircle = ellipseSeries
+    .add({ x: midpoint, y: top, radiusX: 0.65, radiusY: 0.2 })
+    // Optional, changing default style
+    .setFillStyle(solidFillBackgroundCircle)
+    .setStrokeStyle(
+      new SolidLine({ thickness: 1, fillStyle: solidFillBackgroundCircle })
+    );
+
+  // Calculate bottom from top by adding 1.5
+  const bottom = top - 1.5;
+
+  // Calculate center coordinates
+  const centerX = (left + right) / 2;
+  const centerY = (top + bottom) / 2;
+  const center = { x: centerX, y: centerY };
+
+  // Draw polygon representing contact
+  polygonSeries
+    .add([
+      { x: left, y: top },
+      { x: right, y: top },
+      { x: right, y: bottom },
+      { x: left, y: bottom },
+      { x: left, y: top },
+    ])
+    .setFillStyle(solidFillContact)
+    .setStrokeStyle(
+      new SolidLine({
+        thickness: 1,
+        fillStyle: solidFillContact,
+      })
+    );
+
+  drawText(chart, axisX, axisY, text, center);
+};
+
 const drawLastContact = (
   top: number,
   text: string,
@@ -214,38 +314,46 @@ const App = () => {
       chart.setMouseInteractions(false);
 
       let polygonSeries: PolygonSeries = chart.polygonSeriesLead;
-      // Boston Scientific Vercise Segmented
-      // decided to make 5 as the center of the lead.
-      const axisX = chart.getDefaultAxisX();
-      const axisY = chart.getDefaultAxisY();
+      const electrodeName = "Boston Scientific Vercise";
+      if (electrodeName === "Boston Scientific Vercise") {
+        // Boston Scientific Vercise Segmented
+        // decided to make 5 as the center of the lead.
+        const axisX = chart.getDefaultAxisX();
+        const axisY = chart.getDefaultAxisY();
 
-      // Initialize polygonSeries if it doesn't exist
-      if (!polygonSeries) {
-        polygonSeries = chart.addPolygonSeries({ axisX, axisY });
-        polygonSeries.setAutoScrollingEnabled(false);
-        console.log({ polygonSeries });
-        chart.polygonSeriesLead = polygonSeries;
-        polygonSeries.setAutoScrollingEnabled(false);
-        polygonSeries.setHighlightOnHover(false);
-        chart.setAutoCursorMode(AutoCursorModes.disabled);
+        // Initialize polygonSeries if it doesn't exist
+        if (!polygonSeries) {
+          polygonSeries = chart.addPolygonSeries({ axisX, axisY });
+          polygonSeries.setAutoScrollingEnabled(false);
+          console.log({ polygonSeries });
+          chart.polygonSeriesLead = polygonSeries;
+          polygonSeries.setAutoScrollingEnabled(false);
+          polygonSeries.setHighlightOnHover(false);
+          chart.setAutoCursorMode(AutoCursorModes.disabled);
+        }
+        drawLeadBody(polygonSeries, 10);
+        const ellipseSeries = chart
+          .addEllipseSeries()
+          .setAutoScrollingEnabled(false)
+          .setHighlightOnHover(false);
+        drawContact(9, "4", polygonSeries, chart, axisX, axisY, ellipseSeries);
+        drawContact(7, "3A", polygonSeries, chart, axisX, axisY, ellipseSeries);
+        drawRightContact(7, "3B", polygonSeries, chart, axisX, axisY, ellipseSeries);
+        drawLeftContact(7, "3C", polygonSeries, chart, axisX, axisY, ellipseSeries);
+        drawContact(5, "2A", polygonSeries, chart, axisX, axisY, ellipseSeries);
+        drawRightContact(5, "2B", polygonSeries, chart, axisX, axisY, ellipseSeries);
+        drawLeftContact(5, "2B", polygonSeries, chart, axisX, axisY, ellipseSeries);
+        drawLastContact(
+          3,
+          "1",
+          polygonSeries,
+          chart,
+          axisX,
+          axisY,
+          ellipseSeries
+        );
       }
-      drawLeadBody(polygonSeries, 10);
-      const ellipseSeries = chart
-        .addEllipseSeries()
-        .setAutoScrollingEnabled(false)
-        .setHighlightOnHover(false);
-      drawContact(9, "4", polygonSeries, chart, axisX, axisY, ellipseSeries);
-      drawContact(7, "3A", polygonSeries, chart, axisX, axisY, ellipseSeries);
-      drawContact(5, "2A", polygonSeries, chart, axisX, axisY, ellipseSeries);
-      drawLastContact(
-        3,
-        "1",
-        polygonSeries,
-        chart,
-        axisX,
-        axisY,
-        ellipseSeries
-      );
+
 
       return () => {
         // second
