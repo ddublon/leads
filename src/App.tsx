@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import "./App.css";
 import {
   lightningChart,
@@ -20,9 +20,23 @@ import {
   EllipseSeries,
   LinearGradientFill,
 } from "@arction/lcjs";
+const BackgroundFill = new SolidFill({
+  // to optimize this I can share the same BackgroundFill object across all charts
+  color: ColorHEX("#ffffff"),
+});
 
-const contactColor = ColorHEX("#9E9E9e");
-const solidFillContact = new SolidFill({ color: contactColor });
+const BackgroundFillBlack = new SolidFill({
+  // to optimize this I can share the same BackgroundFill object across all charts
+  color: ColorHEX("#ffffff"),
+});
+const solidFillContact = new LinearGradientFill({
+  angle: 90,
+  stops: [
+    { color: ColorHEX("#404040"), offset: 0 },
+    { color: ColorHEX("#C9C9C9"), offset: 0.5 },
+    { color: ColorHEX("#404040"), offset: 1 },
+  ],
+});
 
 // https://lightningchart.com/js-charts/interactive-examples/edit/lcjs-example-0105-temperatureVariations.html
 // https://www.w3schools.com/css/css3_gradients.asp
@@ -58,6 +72,7 @@ const drawText = (
     .setVisible(true)
     .setText(text);
 
+  contactLabelTextBox.setTextFillStyle(BackgroundFillBlack);
   // Set text box background
   contactLabelTextBox.setBackground((background: UIBackground) =>
     background.setFillStyle(emptyFill).setStrokeStyle(emptyLine)
@@ -121,6 +136,13 @@ const drawContact = (
   // Calculate bottom from top by adding 1.5
   const bottom = top - 1.5;
 
+  const bottomCircle = ellipseSeries
+    .add({ x: 5, y: bottom, radiusX: 0.65, radiusY: 0.2 })
+    // Optional, changing default style
+    .setFillStyle(solidFillContact)
+    .setStrokeStyle(
+      new SolidLine({ thickness: 1, fillStyle: solidFillContact })
+    );
   // Calculate center coordinates
   const centerX = (left + right) / 2;
   const centerY = (top + bottom) / 2;
@@ -170,7 +192,13 @@ const drawRightContact = (
 
   // Calculate bottom from top by adding 1.5
   const bottom = top - 1.5;
-
+  const bottomCircle = ellipseSeries
+    .add({ x: midpoint, y: bottom, radiusX: 0.65, radiusY: 0.2 })
+    // Optional, changing default style
+    .setFillStyle(solidFillContact)
+    .setStrokeStyle(
+      new SolidLine({ thickness: 1, fillStyle: solidFillContact })
+    );
   // Calculate center coordinates
   const centerX = (left + right) / 2;
   const centerY = (top + bottom) / 2;
@@ -220,7 +248,13 @@ const drawLeftContact = (
 
   // Calculate bottom from top by adding 1.5
   const bottom = top - 1.5;
-
+  const bottomCircle = ellipseSeries
+  .add({ x: midpoint, y: bottom, radiusX: 0.65, radiusY: 0.2 })
+  // Optional, changing default style
+  .setFillStyle(solidFillContact)
+  .setStrokeStyle(
+    new SolidLine({ thickness: 1, fillStyle: solidFillContact })
+  );
   // Calculate center coordinates
   const centerX = (left + right) / 2;
   const centerY = (top + bottom) / 2;
@@ -312,8 +346,12 @@ const App = () => {
       });
       chart.setTitle(``);
       chart.setMouseInteractions(false);
-
+      chart
+        .setBackgroundFillStyle(BackgroundFill)
+        .setSeriesBackgroundFillStyle(BackgroundFill);
       let polygonSeries: PolygonSeries = chart.polygonSeriesLead;
+      let ellipseSeries: EllipseSeries = chart.ellipseSeriesLead;
+
       const electrodeName = "Boston Scientific Vercise";
       if (electrodeName === "Boston Scientific Vercise") {
         // Boston Scientific Vercise Segmented
@@ -322,27 +360,63 @@ const App = () => {
         const axisY = chart.getDefaultAxisY();
 
         // Initialize polygonSeries if it doesn't exist
-        if (!polygonSeries) {
+        if (!polygonSeries && !ellipseSeries) {
           polygonSeries = chart.addPolygonSeries({ axisX, axisY });
           polygonSeries.setAutoScrollingEnabled(false);
           console.log({ polygonSeries });
           chart.polygonSeriesLead = polygonSeries;
+          polygonSeries.setEffect(false);
           polygonSeries.setAutoScrollingEnabled(false);
           polygonSeries.setHighlightOnHover(false);
           chart.setAutoCursorMode(AutoCursorModes.disabled);
+          ellipseSeries = chart
+            .addEllipseSeries()
+            .setAutoScrollingEnabled(false)
+            .setHighlightOnHover(false)
+            .setEffect(false);
+          chart.ellipseSeriesLead = ellipseSeries;
         }
+
         drawLeadBody(polygonSeries, 10);
-        const ellipseSeries = chart
-          .addEllipseSeries()
-          .setAutoScrollingEnabled(false)
-          .setHighlightOnHover(false);
         drawContact(9, "4", polygonSeries, chart, axisX, axisY, ellipseSeries);
         drawContact(7, "3A", polygonSeries, chart, axisX, axisY, ellipseSeries);
-        drawRightContact(7, "3B", polygonSeries, chart, axisX, axisY, ellipseSeries);
-        drawLeftContact(7, "3C", polygonSeries, chart, axisX, axisY, ellipseSeries);
+        drawRightContact(
+          7,
+          "3B",
+          polygonSeries,
+          chart,
+          axisX,
+          axisY,
+          ellipseSeries
+        );
+        drawLeftContact(
+          7,
+          "3C",
+          polygonSeries,
+          chart,
+          axisX,
+          axisY,
+          ellipseSeries
+        );
         drawContact(5, "2A", polygonSeries, chart, axisX, axisY, ellipseSeries);
-        drawRightContact(5, "2B", polygonSeries, chart, axisX, axisY, ellipseSeries);
-        drawLeftContact(5, "2B", polygonSeries, chart, axisX, axisY, ellipseSeries);
+        drawRightContact(
+          5,
+          "2B",
+          polygonSeries,
+          chart,
+          axisX,
+          axisY,
+          ellipseSeries
+        );
+        drawLeftContact(
+          5,
+          "2B",
+          polygonSeries,
+          chart,
+          axisX,
+          axisY,
+          ellipseSeries
+        );
         drawLastContact(
           3,
           "1",
@@ -353,7 +427,6 @@ const App = () => {
           ellipseSeries
         );
       }
-
 
       return () => {
         // second
